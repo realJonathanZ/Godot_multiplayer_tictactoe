@@ -9,6 +9,7 @@ signal cell_selected(v:Vector2i)
 func set_model(m:Model) -> void:
 	model = m
 	model.connect("model_updated", on_model_update)
+	print("model_updated signal is connected to on_model_update")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -23,6 +24,6 @@ func on_model_update() -> void:
 	var coords:Array[Vector2i] = model.get_coords()
 	for c in coords:
 		if model.get_tile_state(c):
-			set_cell(c, 0, Vector2i(0,0))
+			self.set_cell(c, 0, Vector2i(0,0))
 		else:
-			set_cell(c, 0, Vector2i(5,0))
+			self.set_cell(c, 0, Vector2i(1,0))

@@ -7,7 +7,7 @@ var view:View
 func _ready() -> void:
 	view = $TileMapLayer
 	view.connect("cell_selected", tile_selected)
-	model = Model.new(5, view)
+	model = Model.new(3, view)
 	view.set_model(model)
 	model.reset_board()
 	
