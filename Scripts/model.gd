@@ -36,7 +36,7 @@ func make_move(coord: Vector2i) -> void:
 	model_updated.emit()
 
 	if check_win(current_player): # if the current player already wins(by making 3 entries in a line?)
-		emit_signal("game_over", current_player)
+		emit_signal("game_over", "Player took Capital " + current_player + " ")
 	elif is_draw(): # if all the tiles are fulfilled and no winner..
 		emit_signal("game_over", "Cat")
 	else:

@@ -13,7 +13,10 @@ config_version=5
 config/name="TileToggle"
 run/main_scene="uid://qfctxv8k0qnm"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [rendering]
 
