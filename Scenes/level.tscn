@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3 uid="uid://qfctxv8k0qnm"]
+
+[ext_resource type="Script" uid="uid://u07raotu841e" path="res://Scripts/controller.gd" id="1_k5f4k"]
+[ext_resource type="Script" uid="uid://cq408g02ef244" path="res://Scripts/view.gd" id="2_6phgx"]
+[ext_resource type="Texture2D" uid="uid://chm7g2hqkwe4j" path="res://Sprites/terrain_tiles.png" id="2_81xng"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wqkje"]
+texture = ExtResource("2_81xng")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_0f350"]
+tile_size = Vector2i(64, 64)
+sources/0 = SubResource("TileSetAtlasSource_wqkje")
+
+[node name="Level" type="Node2D"]
+script = ExtResource("1_k5f4k")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_0f350")
+script = ExtResource("2_6phgx")
