@@ -2,28 +2,37 @@ class_name View
 
 extends TileMapLayer
 
-var model:Model
-
 signal cell_selected(v:Vector2i)
 
-func set_model(m:Model) -> void:
+var model:Model
+var turn_label: Label
+
+func set_model(m:Model, label:Label) -> void:
 	model = m
-	model.connect("model_updated", on_model_update)
-	print("model_updated signal is connected to on_model_update")
+	turn_label = label
+	model.connect("model_updated", Callable(self, "_on_model_update"))
+	model.connect("game_over", Callable(self, "_on_game_over"))
+	_on_model_update() # initial update
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			var global_mouse_pos = event.position
 			var local_mouse_pos = to_local(global_mouse_pos)
-			var selected_cell:Vector2i = local_to_map(local_mouse_pos)
+			var cord_in_map:Vector2i = local_to_map(local_mouse_pos)
+			if cord_in_map.x >= 0 and cord_in_map.x < 3 and cord_in_map.y >= 0 and cord_in_map.y < 3:
+				emit_signal("cell_selected", cord_in_map)
 			
-			cell_selected.emit(selected_cell)
 
-func on_model_update() -> void:
-	var coords:Array[Vector2i] = model.get_coords()
-	for c in coords:
-		if model.get_tile_state(c):
-			self.set_cell(c, 0, Vector2i(0,0))
+func _on_model_update() -> void:
+	for coord in model.board.keys():
+		var tile_value = model.board[coord]
+		if tile_value == "X":
+			set_cell(coord, 0, Vector2i(1,0))
+		elif tile_value == "O":
+			set_cell(coord, 0, Vector2i(0,0))
+		elif tile_value == "":
+			set_cell(coord, 0, Vector2i(2,0))
 		else:
-			self.set_cell(c, 0, Vector2i(1,0))
+			print("Error: sth wrong is in view._on_model_update()")
+	turn_label.text = "Turn: %s" % model.current_player # updating turn label
