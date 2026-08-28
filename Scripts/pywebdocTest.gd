@@ -39,6 +39,8 @@ func _process(_delta):
 			
 		# How many packets waiting in ws stream..
 		var available_packets_count: int = socket.get_available_packet_count()
+		
+		print("in _process(), Packets waiting: ", available_packets_count)
 			
 		# if this client ever receives a message back..
 		if available_packets_count > 0:
