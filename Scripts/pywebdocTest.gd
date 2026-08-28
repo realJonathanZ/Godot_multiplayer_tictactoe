@@ -17,6 +17,17 @@ func _process(_delta):
 		
 	if state == WebSocketPeer.STATE_OPEN:
 		print("checked in _process with current connection status to be: connected")
-		#set_process(false) # don't eun my _process again and again after connected.
+		
+		var packet: Dictionary = {
+			"type": "chat",
+			"data": {
+				"sender": "Godot",
+				"message": "message from godot client"
+			}
+		} 
+		
+		socket.send_text(JSON.stringify(packet))
+		
+		#set_process(false) # don't run my _process again and again after connected.
 			
 			
