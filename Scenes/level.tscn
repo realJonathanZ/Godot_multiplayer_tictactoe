@@ -22,10 +22,10 @@ script = ExtResource("1_k5f4k")
 position = Vector2(408, 163)
 
 [node name="UIturnLabel" type="Label" parent="."]
-offset_left = -2.0
-offset_top = -32.0
-offset_right = 126.0
-offset_bottom = -9.0
+offset_left = 776.0
+offset_top = 416.0
+offset_right = 904.0
+offset_bottom = 439.0
 text = "It is bruh's move"
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
