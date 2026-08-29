@@ -71,16 +71,54 @@ func _process(_delta):
 			
 			print_debug("the dictionary godot received from ws stream: ", received_dict)
 			
-			# determine the packet type (i.e. chat? join_room? other?)
+			# -----
+			# determine packet type
+			# -----
+		
 			var packet_type: Variant = received_dict.get("type")
 			
-			# verify if it is of type "chat" specifically for the received packet
+			# =====
+			# CHAT PACKET RELATED
+			# =====
 			if packet_type == "chat":
 				print_debug("godot received a CHAT packet")
+			
+				# retrieve "data"
+				var data: Variant = received_dict.get("data")
 				
-		
-
-			
-			
-			
-			
+				# data section in main json, should be itself a dict
+				if not data is Dictionary:
+					print_debug(" 'data' field in the main json is not itself a dictionary. ")
+					push_error("Malformed chat packet detected here")
+					return
+					
+				var chat_data: Dictionary = data
+				
+				# retrieve sender then
+				var sender: Variant = chat_data.get("sender")
+				
+				if not sender is String:
+					print_debug(" 'sender' field in the 'data' field is not a String")
+					push_error("Malformed inside information here")
+					return
+					
+				var chat_sender: String = sender
+				
+				# retrieve message then
+				var message: Variant = chat_data.get("message")
+				
+				if not message is String:
+					print_debug(" 'message' field in the 'data' field is not a String ")
+					push_error("Malformed inside information here")
+					return
+					
+				var chat_message: String = message
+				
+				# -----
+				# All info for 'chat' typed message extracted besides validation
+				
+				print_debug("godot received chat packet, unpacking info below: \n")
+				print("[GODOT][CHAT] sender:", chat_sender)
+				print("message: ", chat_message)
+					
+				
