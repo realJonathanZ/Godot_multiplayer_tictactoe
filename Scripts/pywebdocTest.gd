@@ -63,6 +63,8 @@ func _process(_delta):
 			# if packet exist, not null, confirm it being a godot dict instead of some other Variant..
 			if not parsed_packet is Dictionary:
 				print_debug("godot received valid json packet, but is not a dictionary")
+				push_error("Something wrong here")
+				return
 				
 			# the json validation is teested done
 			var received_dict : Dictionary = parsed_packet
@@ -76,8 +78,8 @@ func _process(_delta):
 			if packet_type == "chat":
 				print_debug("godot received a CHAT packet")
 				
-				
-			
+		
+
 			
 			
 			
