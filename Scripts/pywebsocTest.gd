@@ -38,87 +38,129 @@ func _process(_delta):
 			print("Godot sent one chat packet")
 
 			has_sent_message = true # for not sending another pack		
+			
+		# ---
+		# process incoming packets
+			
+		process_incoming_packets()
+			
+## --
+## incoming websocket packets
+## --
+			
+func process_incoming_packets() -> void:
+	"""
+	check whether websockets has currently got packets in stream waiting.
+	If packets exists, no matter the quantity, retrieve and process the first packet.
+	 
+	* actually dealing with customized application-level packets defined with customized python server. 
+	"""
+	
+	var available_packets_count: int = socket.get_available_packet_count()
+	
+	if available_packets_count <= 0:
+		return
+	
+	## retrieve one packet
+	
+	var received_packet: PackedByteArray = socket.get_packet()
+	var received_message: String = received_packet.get_string_from_utf8()
+	
+	#print("godot received raw str: ", received_message)	
+	
+	## parse json
+	
+	var parsed_packet: Variant = JSON.parse_string(received_message)
+	
+	if parsed_packet == null:
+		print_debug("godot received invalid json.")
+		return
 		
-			
-		# How many packets waiting in ws stream..
-		var available_packets_count: int = socket.get_available_packet_count()
+	## validate JSON type
+	
+	if not parsed_packet is Dictionary:
+		print_debug(
+			"godot received valid JSON, " +
+			"but the resulting Variant is not a Dictionary"
+		)
+		push_error("godot received pack, but is not a dictionary")
+		return
 		
-		# print("in _process(), Packets waiting: ", available_packets_count)
-			
-		# if this client ever receives a packet back..
-		if available_packets_count > 0:
-			#  retrieve one packet
-			var received_packet: PackedByteArray = socket.get_packet()
-			var received_message: String = received_packet.get_string_from_utf8()
-			
-			print("Godot received raw str:", received_message)
-			
-			# try? parse it to dictionary (parse_string() to godot Variant)
-			var parsed_packet: Variant = JSON.parse_string(received_message)
-			
-			if parsed_packet == null:
-				print_debug("Godot received invalid JSON")
-				return
-			
-			# if packet exist, not null, confirm it being a godot dict instead of some other Variant..
-			if not parsed_packet is Dictionary:
-				print_debug("godot received valid json packet, but is not a dictionary")
-				push_error("Something wrong here")
-				return
-				
-			# the json validation is teested done
-			var received_dict : Dictionary = parsed_packet
-			
-			print_debug("the dictionary godot received from ws stream: ", received_dict)
-			
-			# -----
-			# determine packet type
-			# -----
+	var received_dict: Dictionary = parsed_packet
+	print("godot received dictionary:", received_dict)
 		
-			var packet_type: Variant = received_dict.get("type")
-			
-			# =====
-			# CHAT PACKET RELATED
-			# =====
-			if packet_type == "chat":
-				print_debug("godot received a CHAT packet")
-			
-				# retrieve "data"
-				var data: Variant = received_dict.get("data")
-				
-				# data section in main json, should be itself a dict
-				if not data is Dictionary:
-					print_debug(" 'data' field in the main json is not itself a dictionary. ")
-					push_error("Malformed chat packet detected here")
-					return
-					
-				var chat_data: Dictionary = data
-				
-				# retrieve sender then
-				var sender: Variant = chat_data.get("sender")
-				
-				if not sender is String:
-					print_debug(" 'sender' field in the 'data' field is not a String")
-					push_error("Malformed inside information here")
-					return
-					
-				var chat_sender: String = sender
-				
-				# retrieve message then
-				var message: Variant = chat_data.get("message")
-				
-				if not message is String:
-					print_debug(" 'message' field in the 'data' field is not a String ")
-					push_error("Malformed inside information here")
-					return
-					
-				var chat_message: String = message
-				
-				# -----
-				# All info for 'chat' typed message extracted besides validation
-				
-				print_debug("godot received chat packet, unpacking info below: \n")
-				print("[GODOT][CHAT] sender:", chat_sender)
-				print("message: ", chat_message)
-					
-				
+	## determine packet type
+	
+	var packet_type: Variant = received_dict.get("type")
+	
+	## if -> chat packet
+	
+	if packet_type == "chat":
+		process_chat_packet(received_dict)
+		
+	else:
+		print_debug(
+			"Godot received an unknown or unsupported packet type: ",
+			packet_type
+		)
+	
+## --
+## incoming websocket packets
+## --
+	
+func process_chat_packet(received_dict: Dictionary) -> void:
+	"""
+	logically process a received packet whose type is determined to be 'chat'.
+	
+	(TODO) might refactor it in JSON validation layer.. 
+	"""
+	
+	# retrieve 'data' field
+	
+	var data: Variant = received_dict.get("data")
+	
+	if not data is Dictionary:
+		print_debug(" 'data' field inside is not a Dictionary")
+		push_error("Malformed chat packet detected here")
+		return
+		
+	var chat_data: Dictionary = data
+	
+	# retrieve 'message' field
+	
+	var message: Variant = chat_data.get("message")
+	
+	if not message is String:
+		print_debug(
+			" 'message' field inside 'data' field is not a String"
+		)
+		push_error("Malformed message data detected here.")
+		return
+		
+	var chat_message: String = message
+	
+	# retrieve 'sender' field
+	
+	var sender: Variant = chat_data.get("sender")
+	
+	if not sender is String:
+		print_debug(
+			" 'sender' field in the 'data' field is not a String"
+		)
+		push_error("Malformed chat sender info.")
+		return
+		
+	var chat_sender: String = sender
+	
+	
+	## successfully proceed to chat packet
+	
+	print_debug(
+		"godot received chat packet, unpacking info below: \n"
+	)
+	
+	print("[GODOT][CHAT] sender: ", chat_sender)
+	print("message: ", chat_message)
+	
+	
+	
