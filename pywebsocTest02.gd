@@ -1,4 +1,9 @@
-extends Node
+# This test script, applied on a blank node(type=node2d), shows an print_debug example of:
+# 1. send a join_room packet to the pywebsoc server
+# 2. print_debug once the room is changed.
+# 3. after the room change, checked that, only can receive chat message within the same room.
+
+extends Node2D
 
 var socket: WebSocketPeer = WebSocketPeer.new()
 
@@ -23,10 +28,9 @@ func _process(_delta):
 		# if first _process(), try send one message out for testing purpose
 		if not self.has_sent_message:
 			var packet: Dictionary = {
-				"type": "chat",
+				"type": "join_room",
 				"data": {
-					"sender": "Godot",
-					"message": "message from godot client"
+					"room_id" : "123"
 				}
 			} 
 			
@@ -35,7 +39,7 @@ func _process(_delta):
 			# send out to server
 			socket.send_text(json_message)
 			
-			print("Godot sent one chat packet")
+			print("Godot sent one join_room packet")
 
 			has_sent_message = true # for not sending another pack		
 			
@@ -103,7 +107,7 @@ func process_incoming_packets() -> void:
 			"Godot received an unknown or unsupported packet type: ",
 			packet_type
 		)
-	
+		
 ## --
 ## incoming websocket packets
 ## --

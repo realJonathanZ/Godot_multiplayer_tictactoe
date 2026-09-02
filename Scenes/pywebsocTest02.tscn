@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dm2fbl6mh30av"]
+
+[ext_resource type="Script" uid="uid://w8usx1qcxsa2" path="res://pywebsocTest02.gd" id="1_abron"]
+
+[node name="pywebsocTest02" type="Node2D"]
+script = ExtResource("1_abron")
