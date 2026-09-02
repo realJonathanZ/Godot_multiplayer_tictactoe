@@ -1,7 +1,7 @@
 # This test script, applied on a blank node(type=node2d), shows an print_debug example of:
 # 1. send a join_room packet to the pywebsoc server
 # 2. print_debug once the room is changed.
-# 3. after the room change, checked that, only can receive chat message within the same room.
+
 
 extends Node2D
 
@@ -30,7 +30,8 @@ func _process(_delta):
 			var packet: Dictionary = {
 				"type": "join_room",
 				"data": {
-					"room_id" : "123"
+					"room_id" : "111",
+					"client_name" : "Godot"
 				}
 			} 
 			
