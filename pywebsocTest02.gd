@@ -98,11 +98,14 @@ func process_incoming_packets() -> void:
 	
 	var packet_type: Variant = received_dict.get("type")
 	
-	## if -> chat packet
+	## conditional dispatcher
 	
 	if packet_type == "chat":
 		process_chat_packet(received_dict)
 		
+	elif packet_type == "room_joined":
+		process_room_joined_packet(received_dict)
+	
 	else:
 		print_debug(
 			"Godot received an unknown or unsupported packet type: ",
@@ -167,5 +170,53 @@ func process_chat_packet(received_dict: Dictionary) -> void:
 	print("[GODOT][CHAT] sender: ", chat_sender)
 	print("message: ", chat_message)
 	
+func process_room_joined_packet(received_dict: Dictionary) -> void:
+	"""
+	logically process a received packet whose type is determined to be 'room_joined'.
+	
+	(TODO) might refactor it in JSON validation layer.. 
+	"""
+	
+	# retrieve 'data' field
+	
+	var data: Variant = received_dict.get("data")
+	
+	if not data is Dictionary:
+		print_debug(" 'data' field inside is not a Dictionary. ")
+		push_error("Malformed room_joined packet detected here. ")
+		return
+		
+	var room_joined_data: Dictionary = data
+	
+	# retrieve 'room_id' field
+	
+	var room_id: Variant = room_joined_data.get("room_id")
+	
+	if not room_id is String:
+		print_debug(" 'room_id' field inside 'data' field is not a String. ")
+		push_error("Malform room_id detected here. ")
+		return
+		
+	var joined_room_id: String = room_id
+	
+	# retrieve 'client_name' field
+	
+	var client_name: Variant = room_joined_data.get("client_name")
+	
+	if not client_name is String:
+		print_debug(" 'client_name' field inside 'data' field is not a String.")
+		push_error("Malformed client_name data detected here.")
+		return
+		
+	var joined_client_name: String = client_name
+	
+	## successfully proceed to room_joined packet
+	
+	print_debug(
+		"godot received room_joined packet, unpacking info below: \n"
+	)
+	
+	print("[GODOT][ROOM JOINED] client: ", joined_client_name)
+	print("joined room: ", joined_room_id)
 	
 	
