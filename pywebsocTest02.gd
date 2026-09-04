@@ -9,6 +9,11 @@ var socket: WebSocketPeer = WebSocketPeer.new()
 
 var has_sent_message: bool = false
 
+var room_id: String = "111"
+
+var client_name: String = "A"
+
+
 func _ready():
 	var error = socket.connect_to_url("ws://localhost:8765")
 	
@@ -30,8 +35,8 @@ func _process(_delta):
 			var packet: Dictionary = {
 				"type": "join_room",
 				"data": {
-					"room_id" : "111",
-					"client_name" : "Godot"
+					"room_id" : self.room_id,
+					"client_name" : self.client_name
 				}
 			} 
 			
