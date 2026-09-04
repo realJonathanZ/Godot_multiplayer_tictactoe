@@ -1,6 +1,13 @@
 # This test script, applied on a blank node(type=node2d), shows an print_debug example of:
 # 1. send a join_room packet to the pywebsoc server
-# 2. print_debug once the room is changed.
+# 2. reeive and process(=debugprint) the room_joined info
+# 3. Maintain a persistent player identity
+
+# current test stage:
+# - ws connection
+# - application-level json packets
+# - Room joining
+# - Persistent player identity
 
 
 extends Node2D
@@ -13,15 +20,19 @@ var has_sent_message: bool = false
 # test usaged room id included in packet sent out
 var room_id: String = "111"
 
-# test usaged client name included in packet sent out
-var client_name: String = "A"
-
-# test usage used. Player identifier. which I want each godot exe possess one. (UUID relevant)
+# test usage used. Player identifier. which I want: 
+# each installation/user-data directory gets one persistent player ID.
+# answer when server asks "WHO you are"
+# persistent player identity stored at "user://player_id.txt"
 var player_id: String = ""
 
 # test usage used, displaying later on UI later. (UUID relevent)
+# not intended to be unique
 var display_name: String = "BRUH_PlAYER_JO"
 
+## ====
+## Godot lifecycle
+## ====
 
 func _ready():
 	initialize_player_identity()
@@ -42,21 +53,8 @@ func _process(_delta):
 	if state == WebSocketPeer.STATE_OPEN:
 		
 		# if first _process(), try send one message out for testing purpose
-		if not self.has_sent_message:
-			var packet: Dictionary = {
-				"type": "join_room",
-				"data": {
-					"room_id" : self.room_id,
-					"client_name" : self.client_name
-				}
-			} 
-			
-			var json_message: String = JSON.stringify(packet)
-			
-			# send out to server
-			socket.send_text(json_message)
-			
-			print("Godot sent one join_room packet")
+		if not has_sent_message:
+			send_join_room_packet()
 
 			has_sent_message = true # for not sending another pack		
 			
@@ -64,6 +62,35 @@ func _process(_delta):
 		# process incoming packets
 			
 		process_incoming_packets()
+
+## --
+## outgoing packet(s)
+## --
+
+func send_join_room_packet() -> void:
+	"""
+	Construct and send a (hard-coded) join_room packet to pywebsoc server.
+	Packet including:
+		-1: Which room this client wants to join. 
+		-2: Which player is joining. (player with persistent identity)
+		-3: What display name that player uses.
+	"""
+	
+	var packet: Dictionary = {
+		"type": "join_room",
+		"data": {
+			"room_id": room_id,
+			"player_id": player_id,
+			"display_name": display_name,	
+		}
+	}
+	
+	var json_message: String = JSON.stringify(packet)
+	
+	# send to server
+	socket.send_text(json_message)
+	
+	print("Godot sent one join_room packet")
 			
 ## --
 ## incoming websocket packets
@@ -211,16 +238,26 @@ func process_room_joined_packet(received_dict: Dictionary) -> void:
 		
 	var joined_room_id: String = a_room_id
 	
-	# retrieve 'client_name' field
+	# retrieve 'player_id' field
 	
-	var a_client_name: Variant = room_joined_data.get("client_name")
+	var a_player_id: Variant = room_joined_data.get("player_id")
 	
-	if not a_client_name is String:
-		print_debug(" 'client_name' field inside 'data' field is not a String.")
-		push_error("Malformed client_name data detected here.")
+	if not a_player_id is String:
+		print_debug(" 'player_id' field inside 'data' field is not a String.")
+		push_error("Malformed player_id data detected here.")
 		return
 		
-	var joined_client_name: String = a_client_name
+	var joined_player_id: String = a_player_id
+	
+	# retrieve 'display_name' field
+	var a_display_name: Variant = room_joined_data.get("display_name")
+	
+	if not a_display_name is String:
+		print_debug("'display' field inside 'data' field is not a String")	
+		push_error("Malformed display_name detected here.")
+		return
+	
+	var joined_display_name: String = a_display_name
 	
 	## successfully proceed to room_joined packet
 	
@@ -228,11 +265,12 @@ func process_room_joined_packet(received_dict: Dictionary) -> void:
 		"godot received room_joined packet, unpacking info below: \n"
 	)
 	
-	print("[GODOT][ROOM JOINED] client: ", joined_client_name)
-	print("joined room: ", joined_room_id)
+	print("[GODOT][ROOM JOINED] player_id: ", joined_player_id)
+	print("[GODOT][ROOM JOINED] display_name: ", joined_display_name)
+	print("[GODOT][ROOM JOINED] joined room: ", joined_room_id)
 	
 ## =====
-## Player universally unique identity.
+## Player unique identity.
 ## * should be preserved around file at "user://player_id.txt"
 ## =====
 
@@ -240,13 +278,17 @@ func initialize_player_identity() -> void:
 	# where the player(who are executing this game exe)'s identity info is stored.
 	var identity_path: String = "user://player_id.txt"  
 	
+	## if existing identity
+	
 	if FileAccess.file_exists(identity_path):
 		var file: FileAccess = FileAccess.open(identity_path, FileAccess.READ)
 		player_id = file.get_as_text().strip_edges() # assume for just one line id for now rn?
 		file.close()
 		
-		print_debug("[IDENTITY] loaded existing player_id", player_id)
+		print_debug("[IDENTITY] loaded existing player_id: ", player_id)
 		
+	## if first-time identity
+	
 	else:
 		player_id = generate_player_id()
 		
@@ -259,10 +301,14 @@ func initialize_player_identity() -> void:
 			player_id, 
 			" |which is saved to: ", 
 			identity_path)
-			
+	
+## ====
+## Player ID generation
+## ====
+		
 func generate_player_id() -> String:
 	"""
-	Generate random UUID, might used for being saved to a file. Player identifier.
+	Generate a unique player identifier, might used for being saved to a file. Player identifier.
 	which currently used to tell server who is in front of one executing game exe.
 	"""
 	var some_UUID: String = str(ResourceUID.create_id()) # borrowed godot resourceUID generation method
