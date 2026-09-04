@@ -195,25 +195,25 @@ func process_room_joined_packet(received_dict: Dictionary) -> void:
 	
 	# retrieve 'room_id' field
 	
-	var room_id: Variant = room_joined_data.get("room_id")
+	var a_room_id: Variant = room_joined_data.get("room_id")
 	
-	if not room_id is String:
+	if not a_room_id is String:
 		print_debug(" 'room_id' field inside 'data' field is not a String. ")
 		push_error("Malform room_id detected here. ")
 		return
 		
-	var joined_room_id: String = room_id
+	var joined_room_id: String = a_room_id
 	
 	# retrieve 'client_name' field
 	
-	var client_name: Variant = room_joined_data.get("client_name")
+	var a_client_name: Variant = room_joined_data.get("client_name")
 	
-	if not client_name is String:
+	if not a_client_name is String:
 		print_debug(" 'client_name' field inside 'data' field is not a String.")
 		push_error("Malformed client_name data detected here.")
 		return
 		
-	var joined_client_name: String = client_name
+	var joined_client_name: String = a_client_name
 	
 	## successfully proceed to room_joined packet
 	
