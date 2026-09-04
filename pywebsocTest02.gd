@@ -7,14 +7,25 @@ extends Node2D
 
 var socket: WebSocketPeer = WebSocketPeer.new()
 
+# whether has already sent one test message to the server
 var has_sent_message: bool = false
 
+# test usaged room id included in packet sent out
 var room_id: String = "111"
 
+# test usaged client name included in packet sent out
 var client_name: String = "A"
+
+# test usage used. Player identifier. which I want each godot exe possess one. (UUID relevant)
+var player_id: String = ""
+
+# test usage used, displaying later on UI later. (UUID relevent)
+var display_name: String = "BRUH_PlAYER_JO"
 
 
 func _ready():
+	initialize_player_identity()
+	
 	var error = socket.connect_to_url("ws://localhost:8765")
 	
 	if error != OK:
@@ -116,10 +127,6 @@ func process_incoming_packets() -> void:
 			"Godot received an unknown or unsupported packet type: ",
 			packet_type
 		)
-		
-## --
-## incoming websocket packets
-## --
 	
 func process_chat_packet(received_dict: Dictionary) -> void:
 	"""
@@ -224,4 +231,39 @@ func process_room_joined_packet(received_dict: Dictionary) -> void:
 	print("[GODOT][ROOM JOINED] client: ", joined_client_name)
 	print("joined room: ", joined_room_id)
 	
+## =====
+## Player universally unique identity.
+## * should be preserved around file at "user://player_id.txt"
+## =====
+
+func initialize_player_identity() -> void:
+	# where the player(who are executing this game exe)'s identity info is stored.
+	var identity_path: String = "user://player_id.txt"  
 	
+	if FileAccess.file_exists(identity_path):
+		var file: FileAccess = FileAccess.open(identity_path, FileAccess.READ)
+		player_id = file.get_as_text().strip_edges() # assume for just one line id for now rn?
+		file.close()
+		
+		print_debug("[IDENTITY] loaded existing player_id", player_id)
+		
+	else:
+		player_id = generate_player_id()
+		
+		var file: FileAccess = FileAccess.open(identity_path, FileAccess.WRITE)
+		file.store_string(player_id)
+		file.close()
+		
+		print_debug(
+			"[IDENTITY] generated new player id: ", 
+			player_id, 
+			" |which is saved to: ", 
+			identity_path)
+			
+func generate_player_id() -> String:
+	"""
+	Generate random UUID, might used for being saved to a file. Player identifier.
+	which currently used to tell server who is in front of one executing game exe.
+	"""
+	var some_UUID: String = str(ResourceUID.create_id()) # borrowed godot resourceUID generation method
+	return some_UUID
