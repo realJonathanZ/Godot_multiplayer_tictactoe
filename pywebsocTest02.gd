@@ -14,8 +14,8 @@ extends Node2D
 
 var socket: WebSocketPeer = WebSocketPeer.new()
 
-# whether has already sent one test message to the server
-var has_sent_message: bool = false
+# has already pressed that join room button??
+var has_joined_room: bool = false
 
 # test usaged room id included in packet sent out
 var room_id: String = "111"
@@ -31,13 +31,32 @@ var player_id: String = ""
 var display_name: String = "BRUH_PlAYER_JO"
 
 ## ====
+## (Testing) UI
+## ====
+
+@export_category("Test UI")
+
+@export var player_id_input: LineEdit # <- although the user id is generated from in-script function,...
+# .. user can still change the player id if he wants to, (only for test purpose)
+
+@export var player_display_name_input: LineEdit
+@export var player_room_id_input: LineEdit
+@export var join_room_button: Button
+
+
+
+
+## ====
 ## Godot lifecycle
 ## ====
 
 func _ready():
+	# join button signal
+	self.join_room_button.pressed.connect(self._on_join_room_button_pressed)
+	
 	initialize_player_identity()
 	
-	var error = socket.connect_to_url("ws://localhost:8765")
+	var error: Error = socket.connect_to_url("ws://localhost:8765")
 	
 	if error != OK:
 		print("Websocket connection failed: ", error)
@@ -48,20 +67,23 @@ func _process(_delta):
 	# for every _process, poll current connection state
 	socket.poll()
 		
-	var state = socket.get_ready_state()
+	var state: WebSocketPeer.State = socket.get_ready_state()
 		
 	if state == WebSocketPeer.STATE_OPEN:
-		
-		# if first _process(), try send one message out for testing purpose
-		if not has_sent_message:
-			send_join_room_packet()
-
-			has_sent_message = true # for not sending another pack		
 			
 		# ---
 		# process incoming packets
 			
 		process_incoming_packets()
+
+## ====
+## UI callback
+## ====
+
+func _on_join_room_button_pressed() -> void:
+	send_join_room_packet()
+
+
 
 ## --
 ## outgoing packet(s)
@@ -69,28 +91,51 @@ func _process(_delta):
 
 func send_join_room_packet() -> void:
 	"""
-	Construct and send a (hard-coded) join_room packet to pywebsoc server.
+	Construct and send a join_room packet to pywebsoc server.
 	Packet including:
 		-1: Which room this client wants to join. 
 		-2: Which player is joining. (player with persistent identity)
 		-3: What display name that player uses.
+		
+	The info included might, on test purpose, being modified from some places.
 	"""
 	
+	if socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
+		print_debug("[JOIN_ROOM]DENIED. Websocket is NOT OPEN.")
+		return
+	
+	if has_joined_room:
+		print_debug("already sent this join request. In this test only send one join request.(via button)")
+		return
+	
+	# read current test values from UI user inputs.. (instead of sending raw default in it.)
+	
+	self.room_id = player_room_id_input.text.strip_edges()
+	self.player_id = player_id_input.text.strip_edges()
+	self.display_name = player_display_name_input.text.strip_edges()
+	
+	# dump in packet
 	var packet: Dictionary = {
 		"type": "join_room",
 		"data": {
-			"room_id": room_id,
-			"player_id": player_id,
-			"display_name": display_name,	
+			"room_id": self.room_id,
+			"player_id": self.player_id,
+			"display_name": self.display_name,	
 		}
 	}
 	
+	# before sending
 	var json_message: String = JSON.stringify(packet)
 	
 	# send to server
 	socket.send_text(json_message)
 	
-	print("Godot sent one join_room packet")
+	self.has_joined_room = true
+	
+	print("Godot sent one join_room packet, sending info is listed below:")
+	print("    player_id: ", player_id)
+	print("    display_name: ", display_name)
+	print("    room_id: ", room_id)
 			
 ## --
 ## incoming websocket packets
@@ -275,6 +320,11 @@ func process_room_joined_packet(received_dict: Dictionary) -> void:
 ## =====
 
 func initialize_player_identity() -> void:
+	"""
+	intialize id, on context of this running godot client instance.
+	id is either initialzed, or, obtained from user://.... a location.
+	"""
+	
 	# where the player(who are executing this game exe)'s identity info is stored.
 	var identity_path: String = "user://player_id.txt"  
 	

@@ -1,6 +1,54 @@
-[gd_scene load_steps=2 format=3 uid="uid://dm2fbl6mh30av"]
+[gd_scene load_steps=4 format=3 uid="uid://dm2fbl6mh30av"]
 
 [ext_resource type="Script" uid="uid://w8usx1qcxsa2" path="res://pywebsocTest02.gd" id="1_abron"]
 
-[node name="pywebsocTest02" type="Node2D"]
+[sub_resource type="CanvasTexture" id="CanvasTexture_abron"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qwpfr"]
+texture = SubResource("CanvasTexture_abron")
+modulate_color = Color(1, 0.5019608, 1, 1)
+
+[node name="pywebsocTest02" type="Node2D" node_paths=PackedStringArray("player_id_input", "player_display_name_input", "player_room_id_input", "join_room_button")]
 script = ExtResource("1_abron")
+player_id_input = NodePath("Control/VBoxContainer/playerIDInput")
+player_display_name_input = NodePath("Control/VBoxContainer/playerDisplayNameInput")
+player_room_id_input = NodePath("Control/VBoxContainer/playerRoomIDInput")
+join_room_button = NodePath("Control/VBoxContainer/JoinRoomButton")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+offset_right = 985.0
+offset_bottom = 399.0
+
+[node name="playerIDInput" type="LineEdit" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "TEST_PLAYER_A"
+placeholder_text = "testPlayerID-input"
+
+[node name="playerDisplayNameInput" type="LineEdit" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "bruhJO"
+placeholder_text = "testDisplayName-input"
+
+[node name="playerRoomIDInput" type="LineEdit" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "room_111"
+placeholder_text = "testRoomID-input"
+
+[node name="JoinRoomButton" type="Button" parent="Control/VBoxContainer"]
+custom_minimum_size = Vector2(200, 120)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.5143041, 0.9695819, 0.90026134, 1)
+theme_override_styles/normal = SubResource("StyleBoxTexture_qwpfr")
+text = "Join the pywebsoc NOW!"
+autowrap_mode = 2
