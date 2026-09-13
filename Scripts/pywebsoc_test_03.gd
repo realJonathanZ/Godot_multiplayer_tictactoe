@@ -4,7 +4,8 @@
 # 3. Maintain a persistent player identity
 # 4. Given player ability to send message out and display incoming other users' message in testing UI.
 
-
+# TODO: current message extracting and displaying system is within local client.
+# For program extension, might think of make chat history registered in public pywebsoc server.
 
 
 
@@ -105,6 +106,29 @@ func _on_join_room_button_pressed() -> void:
 func _on_send_msg_button_pressed() -> void:
 	send_chat_message()
 
+## ====
+## UI adjustments
+## ====
+
+func display_local_chat_message(sender: String, message: String) -> void:
+	"""
+	process UI update for a message that is sent out locally. (i.e. by this client)
+	"""
+	display_chat_message(sender, message) # which sender sent what meg
+	clear_chat_message_input() # clear the chat message line edit
+
+func display_chat_message(sender: String, message: String) -> void:
+	"""
+	append the param 'message' sent by param 'sender' in human readable form.
+	(to the chat log display place.)
+	"""
+	player_chat_log.append_text(
+		"[%s]: %s\n" % [sender, message]
+	)
+	
+func clear_chat_message_input() -> void:
+	player_chat_msg_line_edit.clear()
+
 
 
 ## --
@@ -187,13 +211,15 @@ func send_chat_message() -> void:
 	}
 	
 	var json_message: String = JSON.stringify(packet)
-	
 	socket.send_text(json_message)
+	
+	## based on the THIS client's player id and the message content, update the 'chat log'.
+	display_local_chat_message(self.player_id, chat_message)
 	
 	print("[THIS GODOT client " + self.player_id + 
 		  "] [CHAT] sent message: ", chat_message)
 	
-	player_chat_msg_line_edit.clear()
+	
 	
 			
 ## --
@@ -318,6 +344,9 @@ func process_chat_packet(received_dict: Dictionary) -> void:
 	
 	print("[GODOT][CHAT] sender: ", chat_sender)
 	print("message: ", chat_message)
+	
+	# update local UI.
+	display_chat_message(chat_sender, chat_message) # importantly, notice the sender is not self client.
 	
 func process_room_joined_packet(received_dict: Dictionary) -> void:
 	"""
