@@ -60,8 +60,18 @@ var display_name: String = "BRUH_PlAYER_JO"
 ## ====
 
 func _ready():
+	# the player has not joined the room yet, hide the chat panel!
+	chat_window_control.visible = false
+	
+	## ====
+	## Wiring the button on pressed signals
+	## ====
+	
 	# join button signal
 	self.join_room_button.pressed.connect(self._on_join_room_button_pressed)
+	
+	# send message button signal
+	self.send_msg_button.pressed.connect(self._on_send_msg_button_pressed)
 	
 	initialize_player_identity()
 	
@@ -91,6 +101,9 @@ func _process(_delta):
 
 func _on_join_room_button_pressed() -> void:
 	send_join_room_packet()
+	
+func _on_send_msg_button_pressed() -> void:
+	send_chat_message()
 
 
 
@@ -145,6 +158,43 @@ func send_join_room_packet() -> void:
 	print("    player_id: ", player_id)
 	print("    display_name: ", display_name)
 	print("    room_id: ", room_id)
+
+func send_chat_message() -> void:
+	"""
+	Construct and send a chat packet to the pywebsoc server.
+	
+	Packet includes:
+		- sender : This sender's player id. (which is also preserved locally on THIS client)
+		- message: one str text entered by player, for later broadcasting to somewhere else, (which done by server).
+	"""
+	
+	if socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
+		print_debug("[CHAT]DENIED. Websocket is NOT OPEN.")
+		return
+	
+	var chat_message: String = player_chat_msg_line_edit.text.strip_edges()
+	
+	if chat_message.is_empty():
+		print_debug("[CHAT] sending this chat msg DENIED. Message is empty.")
+		return
+		
+	var packet: Dictionary = {
+		"type": "chat",
+		"data": {
+			"sender": self.player_id,
+			"message": chat_message
+		}
+	}
+	
+	var json_message: String = JSON.stringify(packet)
+	
+	socket.send_text(json_message)
+	
+	print("[THIS GODOT client " + self.player_id + 
+		  "] [CHAT] sent message: ", chat_message)
+	
+	player_chat_msg_line_edit.clear()
+	
 			
 ## --
 ## incoming websocket packets
@@ -202,6 +252,12 @@ func process_incoming_packets() -> void:
 		
 	elif packet_type == "room_joined":
 		process_room_joined_packet(received_dict)
+		
+		# for test we want:
+		# collapase the join room form when the player "has joined" the room, and..
+		# show the chat log form out.
+		join_form_control.queue_free()
+		chat_window_control.visible = true
 	
 	else:
 		print_debug(
@@ -256,7 +312,7 @@ func process_chat_packet(received_dict: Dictionary) -> void:
 	
 	## successfully proceed to chat packet
 	
-	print_debug(
+	print(
 		"godot received chat packet, unpacking info below: \n"
 	)
 	
@@ -315,7 +371,7 @@ func process_room_joined_packet(received_dict: Dictionary) -> void:
 	
 	## successfully proceed to room_joined packet
 	
-	print_debug(
+	print(
 		"godot received room_joined packet, unpacking info below: \n"
 	)
 	

@@ -8,8 +8,10 @@
 texture = SubResource("CanvasTexture_abron")
 modulate_color = Color(1, 0.5019608, 1, 1)
 
-[node name="pywebsocTest03" type="Node2D" node_paths=PackedStringArray("player_id_input", "player_display_name_input", "player_room_id_input", "join_room_button", "player_chat_log", "player_chat_msg_line_edit", "send_msg_button")]
+[node name="pywebsocTest03" type="Node2D" node_paths=PackedStringArray("join_form_control", "chat_window_control", "player_id_input", "player_display_name_input", "player_room_id_input", "join_room_button", "player_chat_log", "player_chat_msg_line_edit", "send_msg_button")]
 script = ExtResource("1_yefb1")
+join_form_control = NodePath("JoinFormControl")
+chat_window_control = NodePath("ChatWindowControl")
 player_id_input = NodePath("JoinFormControl/VBoxContainer/playerIDInput")
 player_display_name_input = NodePath("JoinFormControl/VBoxContainer/playerDisplayNameInput")
 player_room_id_input = NodePath("JoinFormControl/VBoxContainer/playerRoomIDInput")
