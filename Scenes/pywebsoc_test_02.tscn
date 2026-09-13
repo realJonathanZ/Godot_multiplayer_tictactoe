@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://dm2fbl6mh30av"]
 
-[ext_resource type="Script" uid="uid://w8usx1qcxsa2" path="res://pywebsocTest02.gd" id="1_abron"]
+[ext_resource type="Script" uid="uid://w8usx1qcxsa2" path="res://Scripts/pywebsoc_test_02.gd" id="1_abron"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_abron"]
 

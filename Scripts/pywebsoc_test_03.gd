@@ -2,12 +2,10 @@
 # 1. send a join_room packet to the pywebsoc server
 # 2. reeive and process(=debugprint) the room_joined info
 # 3. Maintain a persistent player identity
+# 4. Given player ability to send message out and display incoming other users' message in testing UI.
 
-# current test stage:
-# - ws connection
-# - application-level json packets
-# - Room joining
-# - Persistent player identity
+
+
 
 
 extends Node2D
@@ -34,7 +32,12 @@ var display_name: String = "BRUH_PlAYER_JO"
 ## (Testing) UI
 ## ====
 
-@export_category("Test UI")
+@export_category("subControl")
+
+@export var join_form_control: Control # root control node for join room
+@export var chat_window_control: Control # root control node for chat room
+
+@export_category("JoinRoom Test UI")
 
 @export var player_id_input: LineEdit # <- although the user id is generated from in-script function,...
 # .. user can still change the player id if he wants to, (only for test purpose)
@@ -43,6 +46,11 @@ var display_name: String = "BRUH_PlAYER_JO"
 @export var player_room_id_input: LineEdit
 @export var join_room_button: Button
 
+@export_category("Chat Test UI")
+
+@export var player_chat_log: RichTextLabel
+@export var player_chat_msg_line_edit: LineEdit
+@export var send_msg_button: Button
 
 
 

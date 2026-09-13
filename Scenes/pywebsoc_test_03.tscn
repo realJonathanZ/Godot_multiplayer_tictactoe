@@ -1,0 +1,101 @@
+[gd_scene load_steps=4 format=3 uid="uid://cxfkn8t1fvn7i"]
+
+[ext_resource type="Script" uid="uid://cf6kwc5knqql" path="res://Scripts/pywebsoc_test_03.gd" id="1_yefb1"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_abron"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qwpfr"]
+texture = SubResource("CanvasTexture_abron")
+modulate_color = Color(1, 0.5019608, 1, 1)
+
+[node name="pywebsocTest03" type="Node2D" node_paths=PackedStringArray("player_id_input", "player_display_name_input", "player_room_id_input", "join_room_button", "player_chat_log", "player_chat_msg_line_edit", "send_msg_button")]
+script = ExtResource("1_yefb1")
+player_id_input = NodePath("JoinFormControl/VBoxContainer/playerIDInput")
+player_display_name_input = NodePath("JoinFormControl/VBoxContainer/playerDisplayNameInput")
+player_room_id_input = NodePath("JoinFormControl/VBoxContainer/playerRoomIDInput")
+join_room_button = NodePath("JoinFormControl/VBoxContainer/JoinButton")
+player_chat_log = NodePath("ChatWindowControl/MarginContainer/ChatLayoutVbox/ChatLog")
+player_chat_msg_line_edit = NodePath("ChatWindowControl/MarginContainer/ChatLayoutVbox/ChatMsgLineEdit")
+send_msg_button = NodePath("ChatWindowControl/MarginContainer/ChatLayoutVbox/SendMsgButton")
+
+[node name="JoinFormControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinFormControl"]
+layout_mode = 0
+offset_right = 524.0
+offset_bottom = 298.0
+
+[node name="playerIDInput" type="LineEdit" parent="JoinFormControl/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "TEST_PLAYER_A"
+placeholder_text = "testPlayerID-input"
+
+[node name="playerDisplayNameInput" type="LineEdit" parent="JoinFormControl/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "bruhJO"
+placeholder_text = "testDisplayName-input"
+
+[node name="playerRoomIDInput" type="LineEdit" parent="JoinFormControl/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "room_111"
+placeholder_text = "testRoomID-input"
+
+[node name="JoinButton" type="Button" parent="JoinFormControl/VBoxContainer"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.5143041, 0.9695819, 0.90026134, 1)
+theme_override_styles/normal = SubResource("StyleBoxTexture_qwpfr")
+text = "Join the pywebsoc NOW! - press me to submit"
+autowrap_mode = 2
+
+[node name="ChatWindowControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="ChatWindowControl"]
+layout_mode = 0
+offset_left = 50.0
+offset_top = 220.0
+offset_right = 1024.0
+offset_bottom = 613.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ChatLayoutVbox" type="VBoxContainer" parent="ChatWindowControl/MarginContainer"]
+layout_mode = 2
+
+[node name="ChatLog" type="RichTextLabel" parent="ChatWindowControl/MarginContainer/ChatLayoutVbox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 20
+text = "This is the  chat log."
+
+[node name="ChatMsgLineEdit" type="LineEdit" parent="ChatWindowControl/MarginContainer/ChatLayoutVbox"]
+layout_mode = 2
+placeholder_text = "Enter some message to send..."
+
+[node name="SendMsgButton" type="Button" parent="ChatWindowControl/MarginContainer/ChatLayoutVbox"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.5143041, 0.9695819, 0.90026134, 1)
+theme_override_styles/normal = SubResource("StyleBoxTexture_qwpfr")
+text = "Send Msg Button - press me"
+autowrap_mode = 2
