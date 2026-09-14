@@ -30,17 +30,21 @@ func reset_board() -> void:
 ## Note: it has ability to send out signal on certain conditions (win/draw detected after move)
 func make_move(coord: Vector2i) -> void:
 	if not board.has(coord) or board[coord] != "":
+		print_debug("[Invalid]already occupied, rejected this move")
 		return  # tile is invalid or already claimed, should do nothing, no need to notify view as well!
 
 	board[coord] = current_player
-	model_updated.emit()
 
 	if check_win(current_player): # if the current player already wins(by making 3 entries in a line?)
+		model_updated.emit() # view please redraw
 		emit_signal("game_over", "Player took Capital " + current_player + " ")
 	elif is_draw(): # if all the tiles are fulfilled and no winner..
+		model_updated.emit() # view please redraw
 		emit_signal("game_over", "Cat")
 	else:
 		toggle_player() # another player start his turn
+		model_updated.emit() # view please redraw AFTER the player is toggled.
+		# In above way, the label is rendered correctly!
 
 ## modifying the current player, inside this model class. It toggles from "X" or "O"		
 func toggle_player() -> void:

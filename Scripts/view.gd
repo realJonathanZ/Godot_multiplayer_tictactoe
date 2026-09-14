@@ -5,15 +5,14 @@ extends TileMapLayer
 signal cell_selected(v:Vector2i)
 
 var model:Model
-var turn_label: Label
+@export var turn_label: Label
 
 ## Build relation that view is now reactive to some signal that omited from the model class.
 ## This func is called when _ready() inside controller.gd
-func set_model(m:Model, label:Label) -> void:
+func set_model(m:Model) -> void:
 	model = m
-	turn_label = label
-	model.connect("model_updated", Callable(self, "_on_model_update"))
-	model.connect("game_over", Callable(self, "_on_game_over"))
+	model.model_updated.connect(self._on_model_update)
+	model.game_over.connect(self._on_game_over)
 	_on_model_update() # initial update
 
 ## Detection for the left click happened inside the game window.
@@ -39,7 +38,8 @@ func _on_model_update() -> void:
 		elif tile_value == "":
 			set_cell(coord, 0, Vector2i(2,0))
 		else:
-			print("Error: sth wrong is in view._on_model_update()")
+			print_debug("Error: sth wrong is in view._on_model_update()")
+	 
 	turn_label.text = "Turn: %s" % model.current_player # updating turn label
 	
 func _on_game_over(winner: String):
@@ -54,7 +54,8 @@ func _on_game_over(winner: String):
 	popup.dialog_text = msg
 	popup.get_ok_button().text = "New Game"
 	popup.popup_centered()
-	popup.connect("confirmed", Callable(self, "_restart_game")) ## This signal is a built-in from ConfirmationDialog instance
+	#popup.connect("confirmed", Callable(self, "_restart_game")) ## This signal is a built-in from ConfirmationDialog instance
+	popup.confirmed.connect(_restart_game)
 
 func _restart_game():
 	model.reset_board()

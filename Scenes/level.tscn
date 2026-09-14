@@ -16,10 +16,19 @@ tile_size = Vector2i(64, 64)
 sources/0 = SubResource("TileSetAtlasSource_wqkje")
 
 [node name="Level" type="Node2D"]
+
+[node name="ControllerNode" type="Node" parent="." node_paths=PackedStringArray("view", "turn_label")]
 script = ExtResource("1_k5f4k")
+view = NodePath("../TileMapLayer")
+turn_label = NodePath("../UIturnLabel")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(408, 163)
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." node_paths=PackedStringArray("turn_label")]
+tile_set = SubResource("TileSet_0f350")
+script = ExtResource("2_6phgx")
+turn_label = NodePath("../UIturnLabel")
 
 [node name="UIturnLabel" type="Label" parent="."]
 offset_left = 776.0
@@ -27,7 +36,3 @@ offset_top = 416.0
 offset_right = 904.0
 offset_bottom = 439.0
 text = "It is bruh's move"
-
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
-tile_set = SubResource("TileSet_0f350")
-script = ExtResource("2_6phgx")
