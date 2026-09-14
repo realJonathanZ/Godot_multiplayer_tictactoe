@@ -54,8 +54,7 @@ func _on_game_over(winner: String):
 	popup.dialog_text = msg
 	popup.get_ok_button().text = "New Game"
 	popup.popup_centered()
-	#popup.connect("confirmed", Callable(self, "_restart_game")) ## This signal is a built-in from ConfirmationDialog instance
-	popup.confirmed.connect(_restart_game)
+	popup.confirmed.connect(_restart_game) # signal built in from ConfirmationDialog instance
 
 func _restart_game():
 	model.reset_board()
