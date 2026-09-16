@@ -15,5 +15,5 @@ func _ready() -> void:
 	view.cell_selected.connect(self._on_cell_selected) # signal wiring
 	
 func _on_cell_selected(coord: Vector2i):
-	model.make_move(coord) # relation between controller and model
+	MessageBus.local_move_requested.emit(coord)
 	
