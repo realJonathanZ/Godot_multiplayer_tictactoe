@@ -16,7 +16,8 @@ config/features=PackedStringArray("4.5", "GL Compatibility")
 
 [autoload]
 
-MessageBus="*res://network/message_bus.gd"
+MesB="*res://network/message_bus.gd"
+NetAdp="*res://network/network_adapter.gd"
 
 [editor_plugins]
 

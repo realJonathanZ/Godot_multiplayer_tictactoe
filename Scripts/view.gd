@@ -25,6 +25,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			var local_mouse_pos = to_local(global_mouse_pos)
 			var cord_in_map:Vector2i = local_to_map(local_mouse_pos)
 			if cord_in_map.x >= 0 and cord_in_map.x < 3 and cord_in_map.y >= 0 and cord_in_map.y < 3:
+				#print_debug("View has received click in _unhandled_input")
 				emit_signal("cell_selected", cord_in_map)
 			
 
