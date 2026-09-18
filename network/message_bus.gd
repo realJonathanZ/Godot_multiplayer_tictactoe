@@ -12,3 +12,6 @@ extends Node
 
 ## "detected one move from THIS client on position coord"
 signal local_move_requested(coord: Vector2i)
+
+## "detected one coming package from the server..(of an unknown type)"
+signal network_message_received(packet: Dictionary)
